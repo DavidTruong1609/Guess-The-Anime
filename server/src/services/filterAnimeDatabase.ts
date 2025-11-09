@@ -1,6 +1,6 @@
 import axios from "axios";
 import dotenv from "dotenv";
-import pool from "../db.ts";
+import pool from "../config/db.ts";
 
 dotenv.config();
 
