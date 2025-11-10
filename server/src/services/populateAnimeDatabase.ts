@@ -192,7 +192,7 @@ const populateDatabase = async () => {
     Populates the database with anime data.
 
     */
-    const animeLimit = 8 // Change this limit number variable to a max of 500 to add that amount of animes to your database.
+    const animeLimit = 15 // Change this limit number variable to a max of 500 to add that amount of animes to your database.
 
     const animeData = await fetchAnime(animeLimit); 
 
