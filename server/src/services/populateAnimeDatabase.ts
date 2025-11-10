@@ -41,12 +41,12 @@ const fetchAnime = async (limit: number): Promise<Anime[]> => {
     return response.data.data.map((data: { node: Anime; }) => data.node); 
 }
 
-const fetchAnimeDetails = async (animeId: number): Promise<AnimeDetails | undefined> => {
+const fetchAnimeDetails = async (animeId: number): Promise<{animeDetails: AnimeDetails, animeTitles: Set<string>} | undefined> => {
     /**
     Fetches the anime details from their anime id from the MyAnimeList API.
 
     @param {number} animeId The MyAnimeList anime id to fetch.
-    @returns {Promise<AnimeDetails | undefined>} Promise of the anime details or undefined if fails.
+    @returns {Promise<{animeDetails: AnimeDetails, animeTitles: Set<string>} | undefined>} Promise of the anime details and anime titles or undefined if fails.
     */
     const url = "https://api.myanimelist.net/v2/anime";
     const params = {
@@ -56,14 +56,20 @@ const fetchAnimeDetails = async (animeId: number): Promise<AnimeDetails | undefi
     try {
         const response = await axios.get(`${url}/${animeId}`, { headers, params });
 
-        return {
+        const animeDetails: AnimeDetails = {
             title: response.data.title,
             source: response.data.source, 
             startSeason: `${response.data.start_season.season} ${response.data.start_season.year}`,
             mean: response.data.mean,
             mediaType: response.data.media_type,
             malId: response.data.id
-        };
+        }
+
+        const animeTitles: Set<string> = new Set([...response.data.alternative_titles.synonyms])
+        animeTitles.add(response.data.title)
+        animeTitles.add(response.data.alternative_titles.en)
+
+        return {animeDetails, animeTitles}
     }
     catch (error) {
         console.error('There was an error with the fetch operation:', error);
@@ -99,26 +105,54 @@ const insertAnime = async (animeDetails: AnimeDetails[]): Promise<void> => {
     }
 }
 
+const insertAnimeTitles = async (animeTitles: Record<number, Set<string>>): Promise<void> => {
+    /**
+    Inserts all potential titles for anime into the Postgresql database.
+
+    @param {Record<number, Set<string>>} animeTitles The key value pair store of anime ids and their titles.
+    */
+    try {
+        for (const animeId in animeTitles) {
+            const titles = animeTitles[animeId]
+            if (titles) {
+                for (const title of titles) {
+                    await pool.query("INSERT INTO anime_titles (anime_id, title) VALUES ($1, $2) ON CONFLICT DO NOTHING", [animeId, title])
+                }
+            }
+        }
+        console.log('Anime title data successfully inserted into the database');
+    }
+    catch (error) {
+        console.error('Error inserting anime data into the database: ', error);
+    }
+}
+
 const populateDatabase = async () => {
     /**
     Populates the database with anime data.
 
     */
-    const animeLimit = 7 // Change this limit number variable to a max of 500 to add that amount of animes to your database.
+    const animeLimit = 8 // Change this limit number variable to a max of 500 to add that amount of animes to your database.
 
     const animeData = await fetchAnime(animeLimit); 
 
-    const allAnimeData = []
+    const allAnimeData: AnimeDetails[] = []
+    const allAnimeTitleData: Record<number, Set<string>> = {}
 
     for (const anime of animeData) {
-        const animeDetails = await fetchAnimeDetails(anime.id)
+        const animeDetailsResponse = await fetchAnimeDetails(anime.id)
+        
+        if (animeDetailsResponse) {
+            const {animeDetails, animeTitles} = animeDetailsResponse
 
-        if (animeDetails) {
             allAnimeData.push(animeDetails)
+            allAnimeTitleData[anime.id] = animeTitles
+
         }
     }
 
     await insertAnime(allAnimeData);
+    await insertAnimeTitles(allAnimeTitleData)
 };
 
 populateDatabase();
