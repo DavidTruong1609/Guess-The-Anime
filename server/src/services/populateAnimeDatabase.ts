@@ -41,7 +41,7 @@ const fetchAnime = async (limit: number): Promise<Anime[]> => {
     return response.data.data.map((data: { node: Anime; }) => data.node); 
 }
 
-const fetchAnimeDetails = async (animeId: number): Promise<{animeDetails: AnimeDetails, animeTitles: Set<string>} | undefined> => {
+const fetchAnimeDetails = async (animeId: number): Promise<{animeDetails: AnimeDetails, animeTitles: Set<string>, animeGenres: string[], animeStudios: string[]} | undefined> => {
     /**
     Fetches the anime details from their anime id from the MyAnimeList API.
 
@@ -69,7 +69,11 @@ const fetchAnimeDetails = async (animeId: number): Promise<{animeDetails: AnimeD
         animeTitles.add(response.data.title)
         animeTitles.add(response.data.alternative_titles.en)
 
-        return {animeDetails, animeTitles}
+        const animeGenres = response.data.genres.map((genre: { id: number; name: string }) => genre.name)
+
+        const animeStudios = response.data.studios.map((studio: { id: number; name: string }) => studio.name)
+
+        return {animeDetails, animeTitles, animeGenres, animeStudios}
     }
     catch (error) {
         console.error('There was an error with the fetch operation:', error);
@@ -127,6 +131,62 @@ const insertAnimeTitles = async (animeTitles: Record<number, Set<string>>): Prom
     }
 }
 
+const insertAnimeGenres = async (animeGenres: Record<number, string[]>) => {
+    /**
+    Inserts all genres for anime into the Postgresql database.
+
+    @param {Record<number, string[]>} animeGenres The key value pair store of anime ids and their genres.
+    */
+    try {
+        for (const animeId in animeGenres) {
+            const genres = animeGenres[animeId]
+            if (genres) {
+                for (const genre of genres) {
+                    await pool.query("INSERT INTO genres (name) VALUES ($1) ON CONFLICT DO NOTHING", [genre])
+
+                    const {rows} = await pool.query("SELECT id FROM genres WHERE name = $1", [genre])
+
+                    const genreId = rows[0].id
+
+                    await pool.query("INSERT INTO anime_genres (anime_id, genre_id) VALUES ($1, $2) ON CONFLICT DO NOTHING", [animeId, genreId])
+                }
+            }
+        }
+        console.log('Anime genre data successfully inserted into the database');
+    }
+    catch (error) {
+        console.error('Error inserting anime data into the database: ', error);
+    }
+}
+
+const insertAnimeStudios = async (animeStudios: Record<number, string[]>) => {
+    /**
+    Inserts all studios for anime into the Postgresql database.
+
+    @param {Record<number, string[]>} animeStudios The key value pair store of anime ids and their studios.
+    */
+    try {
+        for (const animeId in animeStudios) {
+            const studios = animeStudios[animeId]
+            if (studios) {
+                for (const studio of studios) {
+                    await pool.query("INSERT INTO studios (name) VALUES ($1) ON CONFLICT DO NOTHING", [studio])
+
+                    const {rows} = await pool.query("SELECT id FROM studios WHERE name = $1", [studio])
+
+                    const studioId = rows[0].id
+
+                    await pool.query("INSERT INTO anime_studios (anime_id, studio_id) VALUES ($1, $2) ON CONFLICT DO NOTHING", [animeId, studioId])
+                }
+            }
+        }
+        console.log('Anime studio data successfully inserted into the database');
+    }
+    catch (error) {
+        console.error('Error inserting anime data into the database: ', error);
+    }
+}
+
 const populateDatabase = async () => {
     /**
     Populates the database with anime data.
@@ -138,21 +198,26 @@ const populateDatabase = async () => {
 
     const allAnimeData: AnimeDetails[] = []
     const allAnimeTitleData: Record<number, Set<string>> = {}
+    const allAnimeGenres: Record<number, string[]> = {}
+    const allAnimeStudios: Record<number, string[]> = {}
 
     for (const anime of animeData) {
         const animeDetailsResponse = await fetchAnimeDetails(anime.id)
         
         if (animeDetailsResponse) {
-            const {animeDetails, animeTitles} = animeDetailsResponse
+            const {animeDetails, animeTitles, animeGenres, animeStudios} = animeDetailsResponse
 
             allAnimeData.push(animeDetails)
             allAnimeTitleData[anime.id] = animeTitles
-
+            allAnimeGenres[anime.id] = animeGenres
+            allAnimeStudios[anime.id] = animeStudios
         }
     }
 
-    await insertAnime(allAnimeData);
+    await insertAnime(allAnimeData)
     await insertAnimeTitles(allAnimeTitleData)
+    await insertAnimeGenres(allAnimeGenres)
+    await insertAnimeStudios(allAnimeStudios)
 };
 
 populateDatabase();
