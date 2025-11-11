@@ -12,7 +12,7 @@ export const getAnimeDetails = async (req: Request, res: Response) => {
             LEFT JOIN genres ON genres.id = anime_genres.genre_id
             LEFT JOIN anime_studios ON anime_studios.anime_id = anime.mal_id
             LEFT JOIN studios ON studios.id = anime_studios.studio_id
-            GROUP BY anime.id`
+            GROUP BY anime.mal_id`
         )
 
         const formattedAnime = allAnimeDetails.rows.map((anime) => ({
@@ -66,7 +66,7 @@ export const getRandomAnime = async (req: Request, res: Response) => {
             LEFT JOIN genres ON genres.id = anime_genres.genre_id
             LEFT JOIN anime_studios ON anime_studios.anime_id = anime.mal_id
             LEFT JOIN studios ON studios.id = anime_studios.studio_id
-            GROUP BY anime.id
+            GROUP BY anime.mal_id
             ORDER BY RANDOM()
             LIMIT 1`
         )
