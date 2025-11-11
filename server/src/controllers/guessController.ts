@@ -13,7 +13,8 @@ export const getGuesses = async (req: Request, res: Response) => {
             LEFT JOIN genres ON genres.id = anime_genres.genre_id
             LEFT JOIN anime_studios ON anime_studios.anime_id = anime.mal_id
             LEFT JOIN studios ON studios.id = anime_studios.studio_id
-            GROUP BY guesses.id, anime.title, anime.source, anime.start_season, anime.mean, anime.media_type`
+            GROUP BY guesses.id, anime.title, anime.source, anime.start_season, anime.mean, anime.media_type
+            ORDER BY guesses.created_at DESC`
         )
         const filteredGuesses = allGuesses.rows.map((guess) => ({
             animeId: guess.anime_id,
