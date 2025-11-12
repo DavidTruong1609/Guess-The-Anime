@@ -3,6 +3,8 @@ import pool from "../config/db.ts"
 
 export const getAnimeDetails = async (req: Request, res: Response) => {
     try {
+        const { animeId } = req.query
+        
         const allAnimeDetails = await pool.query(
             `SELECT mal_id, title, source, start_season, mean, media_type,
             jsonb_agg(DISTINCT genres.name) as genres,
@@ -12,7 +14,8 @@ export const getAnimeDetails = async (req: Request, res: Response) => {
             LEFT JOIN genres ON genres.id = anime_genres.genre_id
             LEFT JOIN anime_studios ON anime_studios.anime_id = anime.mal_id
             LEFT JOIN studios ON studios.id = anime_studios.studio_id
-            GROUP BY anime.mal_id`
+            WHERE mal_id = $1
+            GROUP BY anime.mal_id`, [animeId]
         )
 
         const formattedAnime = allAnimeDetails.rows.map((anime) => ({
@@ -26,7 +29,7 @@ export const getAnimeDetails = async (req: Request, res: Response) => {
             studios: anime.studios,
         }))
 
-        res.status(200).json(formattedAnime)
+        res.status(200).json(formattedAnime[0])
     }
     catch (error) {
         if (error instanceof Error) {
