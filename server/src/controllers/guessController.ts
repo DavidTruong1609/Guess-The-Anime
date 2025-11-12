@@ -4,7 +4,7 @@ import pool from "../config/db.ts";
 export const getGuesses = async (req: Request, res: Response) => {
     try {
         const allGuesses = await pool.query(
-            `SELECT guesses.anime_id, anime.title, anime.source, anime.start_season, anime.mean, anime.media_type,
+            `SELECT guesses.anime_id, guesses.correct, anime.title, anime.source, anime.start_season, anime.mean, anime.media_type,
             jsonb_agg(DISTINCT genres.name) AS genres,
             jsonb_agg(DISTINCT studios.name) AS studios
             FROM guesses
@@ -18,6 +18,7 @@ export const getGuesses = async (req: Request, res: Response) => {
         )
         const filteredGuesses = allGuesses.rows.map((guess) => ({
             animeId: guess.anime_id,
+            correct: guess.correct,
             title: guess.title,
             source: guess.source,
             startSeason: guess.start_season,
@@ -38,11 +39,24 @@ export const getGuesses = async (req: Request, res: Response) => {
 
 export const postGuess = async (req: Request, res: Response) => {
     try {
-        const { animeId, correct } = req.body
+        const { animeId } = req.body
 
-        await pool.query("INSERT INTO guesses (anime_id, correct) VALUES ($1, $2) ON CONFLICT DO NOTHING", [animeId, correct || false])
+        let correct = false
 
-        res.status(200).json({ message: "Successfully posted guess." })
+        const gameSession = await pool.query("SELECT anime_id FROM game_session")
+
+        const animeToGuessId = gameSession.rows[0].anime_id
+
+        if (animeId === animeToGuessId) {
+            correct = true
+        }
+
+        await pool.query("INSERT INTO guesses (anime_id, correct) VALUES ($1, $2) ON CONFLICT DO NOTHING", [animeId, correct])
+
+        res.status(200).json({ 
+            message: "Successfully posted guess.",
+            correct: correct,
+         })
     }
     catch (error) {
         if (error instanceof Error) {
