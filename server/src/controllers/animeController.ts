@@ -33,7 +33,7 @@ export const getAnimeDetails = async (req: Request, res: Response) => {
     }
     catch (error) {
         if (error instanceof Error) {
-            console.log("Error querying anime list: ", error.message)
+            console.error("Error querying anime list: ", error.message)
             res.status(500).send("Error querying anime list.")
         }
     }
