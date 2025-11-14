@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 
 import axios from "axios"
+import { LuChevronsDown, LuChevronsUp } from 'react-icons/lu';
+import { ImArrowDown, ImArrowUp } from "react-icons/im";
 
 function App() {
   interface AnimeTitle {
@@ -43,7 +45,7 @@ function App() {
 
   const getAnimeTitles = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/anime-titles")
+      const res = await axios.get("https://w2g7jzzm-5000.aue.devtunnels.ms/anime-titles")
       setAnimeTitles(res.data)
     }
     catch (error) {
@@ -53,7 +55,7 @@ function App() {
 
   const getGuesses = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/guess/get-guesses")
+      const res = await axios.get("https://w2g7jzzm-5000.aue.devtunnels.ms/guess/get-guesses")
       setAnimeGuesses(res.data)
     }
     catch (error) {
@@ -63,7 +65,7 @@ function App() {
 
   const getRandomAnime = async (): Promise<AnimeDetails | undefined> => {
     try {
-      const res = await axios.get("http://localhost:5000/random-anime")
+      const res = await axios.get("https://w2g7jzzm-5000.aue.devtunnels.ms/random-anime")
       setRandomAnime(res.data)
       console.log(`The answer is ${res.data.malId}: ${res.data.title}.`)
       return res.data
@@ -75,10 +77,10 @@ function App() {
 
   const getGameSession = async () => {
     try {
-      const sessionResponse = await axios.get("http://localhost:5000/session/get-session")
+      const sessionResponse = await axios.get("https://w2g7jzzm-5000.aue.devtunnels.ms/session/get-session")
 
       if (sessionResponse.data) {
-        const animeDetailsResponse = await axios.get("http://localhost:5000/anime", {
+        const animeDetailsResponse = await axios.get("https://w2g7jzzm-5000.aue.devtunnels.ms/anime", {
           params: {
             animeId: sessionResponse.data.animeId,
           }
@@ -141,7 +143,7 @@ function App() {
     }
 
     try {
-      const guess = await axios.post("http://localhost:5000/guess/post-guess", {animeId: animeGuessId})
+      const guess = await axios.post("https://w2g7jzzm-5000.aue.devtunnels.ms/guess/post-guess", {animeId: animeGuessId})
       setgameEnded(guess.data.correct)
       setSearch("")
       setAnimeSearchTitles([])
@@ -155,12 +157,12 @@ function App() {
 
   const handleNewGame = async () => {
     try {
-      await axios.delete("http://localhost:5000/guess/delete-guesses")
+      await axios.delete("https://w2g7jzzm-5000.aue.devtunnels.ms/guess/delete-guesses")
       setAnimeGuesses([])
       const randomAnime = await getRandomAnime()
       if (randomAnime) {
-        await axios.delete("http://localhost:5000/session/delete-session")
-        await axios.post("http://localhost:5000/session/post-session", {animeId: randomAnime.malId})
+        await axios.delete("https://w2g7jzzm-5000.aue.devtunnels.ms/session/delete-session")
+        await axios.post("https://w2g7jzzm-5000.aue.devtunnels.ms/session/post-session", {animeId: randomAnime.malId})
         setRandomAnime(randomAnime)
         setgameEnded(false)
       }
@@ -172,84 +174,111 @@ function App() {
 
   return (
     <>
-      <div>
-        <div className="new-game-div">
+      <div className="bg-cover min-h-screen">
+        <div className="flex justify-end">
           <button onClick={handleNewGame}>New Game</button>
         </div>
 
-        <div className="title-div">
-          <h1>Guess The Anime</h1>
+        <div className="flex flex-col items-center min-h bg-neutral-500">
+          <div className="text-white">
+            <h1>Guess The Anime</h1>
+          </div>
+          <div className="">
+            <form onSubmit={onSubmit}>
+              <input
+                type="text"
+                value={search}
+                onChange={handleSearchChange}
+                placeholder="Guess anime..."
+                disabled={gameEnded}
+              />
+              <button
+                type="submit"
+                disabled={gameEnded}
+              >Guess</button>
+            </form>
+          </div>
+          <div>
+            {animeSearchTitles.length === 0 ? (
+              <div></div>
+            ) : (
+              <div className="bg-stone-500">
+                {animeSearchTitles.map((animeTitle) => (
+                  <div
+                    key={animeTitle.title}
+                    onClick={() => handleSuggestionClick(animeTitle)}
+                  >
+                    <h5>{animeTitle.title}</h5>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        <div>
-          <form onSubmit={onSubmit}>
-            <input
-              type="text"
-              value={search}
-              onChange={handleSearchChange}
-              placeholder="Guess anime..."
-              disabled={gameEnded}
-            />
-            <button
-              type="submit"
-              disabled={gameEnded}
-            >Guess</button>
-          </form>
-        </div>
-
-        <div>
-          {animeSearchTitles.length === 0 ? (
-            <div></div>
-          ) : (
-            <div>
-              {animeSearchTitles.map((animeTitle) => (
-                <div 
-                  key={animeTitle.title} 
-                  onClick={() => handleSuggestionClick(animeTitle)}
-                >
-                  <h5>{animeTitle.title}</h5>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div>
-          <h2>GUESSES</h2>
+        <div className="flex justify-center">
           {animeGuesses.length === 0 ? (
             <div>no guesses</div>
           ) : (
-            <div>
+            <div className="pt-24 w-2/3">
 
-              <table className="guess-table">
-                <thead>
-                  <tr>
-                    <th>Title</th>
-                    <th>Start Season</th>
-                    <th>Genre/s</th>
-                    <th>Studio/s</th>
-                    <th>Source</th>
-                    <th>Media Type</th>
-                    <th>Score</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {animeGuesses.map((animeGuess) => {
-                    return (
-                      <tr key={animeGuess.animeId}>
-                        <td style={{color: animeGuess.correct ? "green" : "red"}}>{animeGuess.title}</td>
-                        <td>{animeGuess.startSeason}</td>
-                        <td>{animeGuess.genres}</td>
-                        <td>{animeGuess.studios}</td>
-                        <td style={{color: animeGuess.source == randomAnime?.source ? "green": "red"}}>{animeGuess.source}</td>
-                        <td style={{color: animeGuess.mediaType == randomAnime?.mediaType ? "green" : "red"}}>{animeGuess.mediaType}</td>
-                        <td>{animeGuess.mean}</td>
-                      </tr>
-                    )}
+              <div className="rounded-xl grid grid-cols-8 p-3 bg-blue-400">
+                <div className="font-bold text-xl col-span-2">Title</div>
+                <div className="font-bold text-xl">Start Season</div>
+                <div className="font-bold text-xl">Genre/s</div>
+                <div className="font-bold text-xl">Studio/s</div>
+                <div className="font-bold text-xl">Source</div>
+                <div className="font-bold text-xl">Media Type</div>
+                <div className="font-bold text-xl">Score</div>
+              </div>
+
+              <div className="py-3">
+                {animeGuesses.map((animeGuess) => {
+                  return (
+                    <div className="rounded-xl grid grid-cols-8 bg-blue-200 p-3 my-3 opacity-95">
+                      <div className={`font-bold flex items-center text-lg col-span-2 ${animeGuess.correct ? "text-green-500" : "text-red-500"}`}
+                      >{animeGuess.title}</div>
+                      <div className="font-bold flex items-center">{animeGuess.startSeason}</div>
+                      <div className="font-bold flex items-center">
+                        <div>
+                          {animeGuess.genres.map((genre) => (
+                            <div
+                              key={genre}
+                              className={randomAnime?.genres.includes(genre) ? "text-green-500" : "text-red-500"}
+                            >{genre}</div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="font-bold flex items-center">
+                          {animeGuess.studios.map((studio) => (
+                            <div 
+                              key={studio}
+                              className={randomAnime?.studios.includes(studio) ? "text-green-500" : "text-red-500"}
+                            >{studio}</div>
+                          ))}
+                      </div>
+                      <div 
+                        className={`font-bold flex items-center ${animeGuess.source == randomAnime?.source ? "text-green-500" : "text-red-500"}`} 
+                      >{animeGuess.source}</div>
+                      <div 
+                        className={`font-bold flex items-center ${animeGuess.mediaType == randomAnime?.mediaType ? "text-green-500" : "text-red-500"}`}
+                      >{animeGuess.mediaType}</div>
+                      <div className={`relative ${animeGuess.mean == randomAnime?.mean ? "text-green-500" : "text-red-500"}`}>
+                        <div className="absolute inset-0 flex justify-center items-center z-10 text-lg font-bold">{animeGuess.mean}</div>
+                        <div className="absolute inset-0 flex justify-center items-center z-0 text-6xl opacity-25">
+                          {randomAnime?.mean !== undefined && (
+                            animeGuess.mean > randomAnime.mean ? (
+                              <ImArrowDown/>
+                            ) : animeGuess.mean < randomAnime.mean ? (
+                              <ImArrowUp/>
+                            ) : null)}
+                        </div>
+                      </div>
+                    </div>
                   )}
-                </tbody>
-              </table>
-                
+                )}
+              </div>
+              
             </div>
           )}
           
