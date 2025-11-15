@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 
 import axios from "axios"
-import { LuChevronsDown, LuChevronsUp } from 'react-icons/lu';
 import { ImArrowDown, ImArrowUp } from "react-icons/im";
 
 function App() {
@@ -41,11 +40,11 @@ function App() {
   const [animeGuessId, setAnimeGuessId] = useState<number | null>()
   const [animeGuesses, setAnimeGuesses] = useState<AnimeGuess[]>([])
 
-  const [gameEnded, setgameEnded] = useState<boolean>(false)
+  const [gameEnded, setGameEnded] = useState<boolean>(false)
 
   const getAnimeTitles = async () => {
     try {
-      const res = await axios.get("https://w2g7jzzm-5000.aue.devtunnels.ms/anime-titles")
+      const res = await axios.get("http://localhost:5000/anime-titles")
       setAnimeTitles(res.data)
     }
     catch (error) {
@@ -55,8 +54,9 @@ function App() {
 
   const getGuesses = async () => {
     try {
-      const res = await axios.get("https://w2g7jzzm-5000.aue.devtunnels.ms/guess/get-guesses")
+      const res = await axios.get("http://localhost:5000/guess/get-guesses")
       setAnimeGuesses(res.data)
+      return res.data
     }
     catch (error) {
       console.error(error)
@@ -65,7 +65,7 @@ function App() {
 
   const getRandomAnime = async (): Promise<AnimeDetails | undefined> => {
     try {
-      const res = await axios.get("https://w2g7jzzm-5000.aue.devtunnels.ms/random-anime")
+      const res = await axios.get("http://localhost:5000/random-anime")
       setRandomAnime(res.data)
       console.log(`The answer is ${res.data.malId}: ${res.data.title}.`)
       return res.data
@@ -77,18 +77,22 @@ function App() {
 
   const getGameSession = async () => {
     try {
-      const sessionResponse = await axios.get("https://w2g7jzzm-5000.aue.devtunnels.ms/session/get-session")
+      const sessionResponse = await axios.get("http://localhost:5000/session/get-session")
 
       if (sessionResponse.data) {
-        const animeDetailsResponse = await axios.get("https://w2g7jzzm-5000.aue.devtunnels.ms/anime", {
+        const animeDetailsResponse = await axios.get("http://localhost:5000/anime", {
           params: {
             animeId: sessionResponse.data.animeId,
           }
         })
 
-        await getGuesses()
+        const allGuesses: AnimeGuess[] = await getGuesses()
 
-        setgameEnded(false)
+        if (allGuesses.some(guess => guess.correct === true)) {
+          setGameEnded(true)
+        } else {
+          setGameEnded(false)
+        }
 
         setRandomAnime(animeDetailsResponse.data)
 
@@ -143,8 +147,8 @@ function App() {
     }
 
     try {
-      const guess = await axios.post("https://w2g7jzzm-5000.aue.devtunnels.ms/guess/post-guess", {animeId: animeGuessId})
-      setgameEnded(guess.data.correct)
+      const guess = await axios.post("http://localhost:5000/guess/post-guess", {animeId: animeGuessId})
+      setGameEnded(guess.data.correct)
       setSearch("")
       setAnimeSearchTitles([])
       setAnimeGuessId(null)
@@ -157,14 +161,14 @@ function App() {
 
   const handleNewGame = async () => {
     try {
-      await axios.delete("https://w2g7jzzm-5000.aue.devtunnels.ms/guess/delete-guesses")
+      await axios.delete("http://localhost:5000/guess/delete-guesses")
       setAnimeGuesses([])
       const randomAnime = await getRandomAnime()
       if (randomAnime) {
-        await axios.delete("https://w2g7jzzm-5000.aue.devtunnels.ms/session/delete-session")
-        await axios.post("https://w2g7jzzm-5000.aue.devtunnels.ms/session/post-session", {animeId: randomAnime.malId})
+        await axios.delete("http://localhost:5000/session/delete-session")
+        await axios.post("http://localhost:5000/session/post-session", {animeId: randomAnime.malId})
         setRandomAnime(randomAnime)
-        setgameEnded(false)
+        setGameEnded(false)
       }
     }
     catch (error) {
@@ -174,55 +178,73 @@ function App() {
 
   return (
     <>
-      <div className="bg-cover min-h-screen">
-        <div className="flex justify-end">
-          <button onClick={handleNewGame}>New Game</button>
+      <div className="bg-cover min-h-screen bg-[url(/test_bg.jpg)] bg-fixed">
+
+        <div className="flex justify-end p-2">
+          <button 
+            onClick={handleNewGame}
+            className="rounded-3xl bg-neutral-500 px-4 py-2 font-bold text-white cursor-pointer hover:bg-neutral-300 hover:text-neutral-700"
+          >New Game</button>
         </div>
 
-        <div className="flex flex-col items-center min-h bg-neutral-500">
-          <div className="text-white">
-            <h1>Guess The Anime</h1>
-          </div>
-          <div className="">
-            <form onSubmit={onSubmit}>
-              <input
-                type="text"
-                value={search}
-                onChange={handleSearchChange}
-                placeholder="Guess anime..."
-                disabled={gameEnded}
-              />
-              <button
-                type="submit"
-                disabled={gameEnded}
-              >Guess</button>
-            </form>
-          </div>
-          <div>
-            {animeSearchTitles.length === 0 ? (
-              <div></div>
-            ) : (
-              <div className="bg-stone-500">
-                {animeSearchTitles.map((animeTitle) => (
-                  <div
-                    key={animeTitle.title}
-                    onClick={() => handleSuggestionClick(animeTitle)}
-                  >
-                    <h5>{animeTitle.title}</h5>
-                  </div>
-                ))}
+        <div className="flex justify-center items-center py-6">
+
+          <div className="w-1/3 bg-neutral-300 rounded-2xl text-center py-6 opacity-95 border-6 border-neutral-500">
+
+            <div className="text-white font-bold text-6xl py-6 px-2">
+              <h1>Guess The Anime</h1>
+            </div>
+
+            <div className="py-6 px-2">
+
+              <div className="">
+                <form onSubmit={onSubmit}>
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={handleSearchChange}
+                    placeholder="Guess anime..."
+                    disabled={gameEnded}
+                    className="bg-white px-4 py-2 w-1/2 rounded-4xl mx-2 font-bold"
+                  />
+                  <button
+                    type="submit"
+                    disabled={gameEnded}
+                    className="bg-neutral-500 px-4 py-2 rounded-3xl text-xl mx-2 text-white font-bold cursor-pointer hover:bg-neutral-200 hover:text-neutral-800 border-2 border-neutral-900"
+                  >Guess</button>
+                </form>
               </div>
-            )}
+              
+              <div>
+                {animeSearchTitles.length === 0 ? (
+                  <div></div>
+                ) : (
+                  <div className="bg-neutral-500">
+                    {animeSearchTitles.map((animeTitle) => (
+                      <div
+                        key={animeTitle.title}
+                        onClick={() => handleSuggestionClick(animeTitle)}
+                      >
+                        <h5>{animeTitle.title}</h5>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+            </div>
+
           </div>
+
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex justify-center py-6">
           {animeGuesses.length === 0 ? (
-            <div>no guesses</div>
+            <div></div>
           ) : (
-            <div className="pt-24 w-2/3">
+            <div className="w-2/3">
 
-              <div className="rounded-xl grid grid-cols-8 p-3 bg-blue-400">
+              <div className="rounded-xl grid grid-cols-8 p-3 bg-neutral-400 text-white opacity-95 border-4 border-neutral-600 text-center">
                 <div className="font-bold text-xl col-span-2">Title</div>
                 <div className="font-bold text-xl">Start Season</div>
                 <div className="font-bold text-xl">Genre/s</div>
@@ -235,10 +257,30 @@ function App() {
               <div className="py-3">
                 {animeGuesses.map((animeGuess) => {
                   return (
-                    <div className="rounded-xl grid grid-cols-8 bg-blue-200 p-3 my-3 opacity-95">
+                    <div 
+                      key={animeGuess.animeId}
+                      className={`min-h-24 rounded-xl grid grid-cols-8 p-3 my-3 opacity-95 border-2 ${animeGuess.correct ? "bg-green-100 border-green-500" : "bg-red-100 border-red-500"} `}>
                       <div className={`font-bold flex items-center text-lg col-span-2 ${animeGuess.correct ? "text-green-500" : "text-red-500"}`}
                       >{animeGuess.title}</div>
-                      <div className="font-bold flex items-center">{animeGuess.startSeason}</div>
+                      <div className="relative font-bold flex items-center">
+                        <div className="absolute inset-0 flex justify-center items-center z-10 text-lg font-bold">
+                          <div
+                            className={`${randomAnime?.startSeason.includes(animeGuess.startSeason.split(" ")[0]) ? "text-green-500" : "text-red-500"}`}
+                          >{animeGuess.startSeason.split(" ")[0].charAt(0).toUpperCase() + animeGuess.startSeason.split(" ")[0].slice(1)}</div>
+                          <span>&nbsp;</span>
+                          <div
+                            className={`${randomAnime?.startSeason.includes(animeGuess.startSeason.split(" ")[1]) ? "text-green-500" : "text-red-500"}`}
+                          >{animeGuess.startSeason.split(" ")[1]}</div>
+                        </div>
+                        <div className="absolute inset-0 flex justify-center items-center z-0 text-6xl opacity-25 text-red-500">
+                          {randomAnime?.startSeason !== undefined && (
+                            parseInt(animeGuess.startSeason.split(" ")[1]) > parseInt(randomAnime.startSeason.split(" ")[1]) ? (
+                              <ImArrowDown/>
+                            ) : parseInt(animeGuess.startSeason.split(" ")[1]) < parseInt(randomAnime.startSeason.split(" ")[1]) ? (
+                              <ImArrowUp/>
+                            ) : null)}
+                        </div>
+                      </div>
                       <div className="font-bold flex items-center">
                         <div>
                           {animeGuess.genres.map((genre) => (
@@ -250,16 +292,18 @@ function App() {
                         </div>
                       </div>
                       <div className="font-bold flex items-center">
-                          {animeGuess.studios.map((studio) => (
-                            <div 
-                              key={studio}
-                              className={randomAnime?.studios.includes(studio) ? "text-green-500" : "text-red-500"}
-                            >{studio}</div>
-                          ))}
+                          <div>
+                            {animeGuess.studios.map((studio) => (
+                              <div
+                                key={studio}
+                                className={randomAnime?.studios.includes(studio) ? "text-green-500" : "text-red-500"}
+                              >{studio}</div>
+                            ))}
+                          </div>
                       </div>
                       <div 
                         className={`font-bold flex items-center ${animeGuess.source == randomAnime?.source ? "text-green-500" : "text-red-500"}`} 
-                      >{animeGuess.source}</div>
+                      >{animeGuess.source.charAt(0).toUpperCase() + animeGuess.source.slice(1).replace(/_/g, " ")}</div>
                       <div 
                         className={`font-bold flex items-center ${animeGuess.mediaType == randomAnime?.mediaType ? "text-green-500" : "text-red-500"}`}
                       >{animeGuess.mediaType}</div>
@@ -278,7 +322,7 @@ function App() {
                   )}
                 )}
               </div>
-              
+
             </div>
           )}
           
