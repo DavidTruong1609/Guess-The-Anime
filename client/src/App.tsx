@@ -178,7 +178,7 @@ function App() {
 
   return (
     <>
-      <div className="bg-cover min-h-screen bg-[url(/test_bg.jpg)] bg-fixed">
+      <div className="bg-cover min-h-screen bg-neutral-800 bg-fixed">
 
         <div className="flex justify-end p-2">
           <button 
@@ -210,7 +210,7 @@ function App() {
                   <button
                     type="submit"
                     disabled={gameEnded}
-                    className="bg-neutral-500 px-4 py-2 rounded-3xl text-xl mx-2 text-white font-bold cursor-pointer hover:bg-neutral-200 hover:text-neutral-800 border-2 border-neutral-900"
+                    className="bg-linear-to-r from-violet-500 to-blue-500 px-6 py-2 rounded-4xl text-lg mx-2 text-white font-bold cursor-pointer hover:bg-neutral-200 hover:text-neutral-800"
                   >Guess</button>
                 </form>
               </div>
@@ -242,82 +242,88 @@ function App() {
           {animeGuesses.length === 0 ? (
             <div></div>
           ) : (
-            <div className="w-2/3">
+            <div className="w-[1392px]">
 
-              <div className="rounded-xl grid grid-cols-8 p-3 bg-neutral-400 text-white opacity-95 border-4 border-neutral-600 text-center">
-                <div className="font-bold text-xl col-span-2">Title</div>
-                <div className="font-bold text-xl">Start Season</div>
-                <div className="font-bold text-xl">Genre/s</div>
-                <div className="font-bold text-xl">Studio/s</div>
-                <div className="font-bold text-xl">Source</div>
-                <div className="font-bold text-xl">Media Type</div>
-                <div className="font-bold text-xl">Score</div>
+              <div className="font-[Inter] grid grid-cols-8 gap-6 pb-3">
+                <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl col-span-2">Title</div>
+                <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Premiered</div>
+                <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Genre/s</div>
+                <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Studio/s</div>
+                <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Source</div>
+                <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Media Type</div>
+                <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Score</div>
               </div>
 
-              <div className="py-3">
+              <div className="">
                 {animeGuesses.map((animeGuess) => {
                   return (
-                    <div 
-                      key={animeGuess.animeId}
-                      className={`min-h-24 rounded-xl grid grid-cols-8 p-3 my-3 opacity-95 border-2 ${animeGuess.correct ? "bg-green-100 border-green-500" : "bg-red-100 border-red-500"} `}>
-                      <div className={`font-bold flex items-center text-lg col-span-2 ${animeGuess.correct ? "text-green-500" : "text-red-500"}`}
-                      >{animeGuess.title}</div>
-                      <div className="relative font-bold flex items-center">
-                        <div className="absolute inset-0 flex justify-center items-center z-10 text-lg font-bold">
-                          <div
-                            className={`${randomAnime?.startSeason.includes(animeGuess.startSeason.split(" ")[0]) ? "text-green-500" : "text-red-500"}`}
-                          >{animeGuess.startSeason.split(" ")[0].charAt(0).toUpperCase() + animeGuess.startSeason.split(" ")[0].slice(1)}</div>
-                          <span>&nbsp;</span>
-                          <div
-                            className={`${randomAnime?.startSeason.includes(animeGuess.startSeason.split(" ")[1]) ? "text-green-500" : "text-red-500"}`}
-                          >{animeGuess.startSeason.split(" ")[1]}</div>
-                        </div>
-                        <div className="absolute inset-0 flex justify-center items-center z-0 text-6xl opacity-25 text-red-500">
-                          {randomAnime?.startSeason !== undefined && (
-                            parseInt(animeGuess.startSeason.split(" ")[1]) > parseInt(randomAnime.startSeason.split(" ")[1]) ? (
-                              <ImArrowDown/>
-                            ) : parseInt(animeGuess.startSeason.split(" ")[1]) < parseInt(randomAnime.startSeason.split(" ")[1]) ? (
-                              <ImArrowUp/>
-                            ) : null)}
-                        </div>
-                      </div>
-                      <div className="font-bold flex items-center">
-                        <div>
-                          {animeGuess.genres.map((genre) => (
+                    <div className="mt-3 p-0.5 bg-linear-to-r from-violet-500 to-blue-500 rounded-xl">
+                      <div
+                        key={animeGuess.animeId}
+                        className={`min-h-24 rounded-xl grid grid-cols-8 p-3 bg-neutral-700`}>
+                        <div className={`font-bold flex items-center text-lg col-span-2 ${animeGuess.correct ? "text-emerald-400" : "text-red-400"}`}
+                        >
+                          <img src="https://cdn.myanimelist.net/images/anime/10/78745l.webp" className="h-24 px-4"></img>
+                          {animeGuess.title}
+                          </div>
+                        <div className="relative flex items-center">
+                          <div className="absolute inset-0 flex justify-center items-center z-10 text-lg">
                             <div
-                              key={genre}
-                              className={randomAnime?.genres.includes(genre) ? "text-green-500" : "text-red-500"}
-                            >{genre}</div>
-                          ))}
+                              className={`${randomAnime?.startSeason.includes(animeGuess.startSeason.split(" ")[0]) ? "text-emerald-400" : "text-red-400"}`}
+                            >{animeGuess.startSeason.split(" ")[0].charAt(0).toUpperCase() + animeGuess.startSeason.split(" ")[0].slice(1)}</div>
+                            <span>&nbsp;</span>
+                            <div
+                              className={`${randomAnime?.startSeason.includes(animeGuess.startSeason.split(" ")[1]) ? "text-emerald-400" : "text-red-400"}`}
+                            >{animeGuess.startSeason.split(" ")[1]}</div>
+                          </div>
+                          <div className="absolute inset-0 flex justify-center items-center z-0 text-6xl opacity-25 text-red-400">
+                            {randomAnime?.startSeason !== undefined && (
+                              parseInt(animeGuess.startSeason.split(" ")[1]) > parseInt(randomAnime.startSeason.split(" ")[1]) ? (
+                                <ImArrowDown/>
+                              ) : parseInt(animeGuess.startSeason.split(" ")[1]) < parseInt(randomAnime.startSeason.split(" ")[1]) ? (
+                                <ImArrowUp/>
+                              ) : null)}
+                          </div>
                         </div>
-                      </div>
-                      <div className="font-bold flex items-center">
+                        <div className="flex justify-center items-center text-center">
                           <div>
-                            {animeGuess.studios.map((studio) => (
+                            {animeGuess.genres.map((genre) => (
                               <div
-                                key={studio}
-                                className={randomAnime?.studios.includes(studio) ? "text-green-500" : "text-red-500"}
-                              >{studio}</div>
+                                key={genre}
+                                className={randomAnime?.genres.includes(genre) ? "text-emerald-400" : "text-red-400"}
+                              >{genre}</div>
                             ))}
                           </div>
-                      </div>
-                      <div 
-                        className={`font-bold flex items-center ${animeGuess.source == randomAnime?.source ? "text-green-500" : "text-red-500"}`} 
-                      >{animeGuess.source.charAt(0).toUpperCase() + animeGuess.source.slice(1).replace(/_/g, " ")}</div>
-                      <div 
-                        className={`font-bold flex items-center ${animeGuess.mediaType == randomAnime?.mediaType ? "text-green-500" : "text-red-500"}`}
-                      >{animeGuess.mediaType}</div>
-                      <div className={`relative ${animeGuess.mean == randomAnime?.mean ? "text-green-500" : "text-red-500"}`}>
-                        <div className="absolute inset-0 flex justify-center items-center z-10 text-lg font-bold">{animeGuess.mean}</div>
-                        <div className="absolute inset-0 flex justify-center items-center z-0 text-6xl opacity-25">
-                          {randomAnime?.mean !== undefined && (
-                            animeGuess.mean > randomAnime.mean ? (
-                              <ImArrowDown/>
-                            ) : animeGuess.mean < randomAnime.mean ? (
-                              <ImArrowUp/>
-                            ) : null)}
+                        </div>
+                        <div className="flex justify-center items-center text-center">
+                            <div>
+                              {animeGuess.studios.map((studio) => (
+                                <div
+                                  key={studio}
+                                  className={randomAnime?.studios.includes(studio) ? "text-emerald-400" : "text-red-400"}
+                                >{studio}</div>
+                              ))}
+                            </div>
+                        </div>
+                        <div
+                          className={`flex justify-center items-center ${animeGuess.source == randomAnime?.source ? "text-emerald-400" : "text-red-400"}`}
+                        >{animeGuess.source.charAt(0).toUpperCase() + animeGuess.source.slice(1).replace(/_/g, " ")}</div>
+                        <div
+                          className={`flex justify-center items-center ${animeGuess.mediaType == randomAnime?.mediaType ? "text-emerald-400" : "text-red-400"}`}
+                        >{animeGuess.mediaType}</div>
+                        <div className={`relative ${animeGuess.mean == randomAnime?.mean ? "text-emerald-400" : "text-red-400"}`}>
+                          <div className="absolute inset-0 flex justify-center items-center z-10 text-lg">{animeGuess.mean}</div>
+                          <div className="absolute inset-0 flex justify-center items-center z-0 text-6xl opacity-25">
+                            {randomAnime?.mean !== undefined && (
+                              animeGuess.mean > randomAnime.mean ? (
+                                <ImArrowDown/>
+                              ) : animeGuess.mean < randomAnime.mean ? (
+                                <ImArrowUp/>
+                              ) : null)}
+                          </div>
                         </div>
                       </div>
+
                     </div>
                   )}
                 )}
