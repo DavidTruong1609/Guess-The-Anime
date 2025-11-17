@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 
 import axios from "axios"
-import { ImArrowDown, ImArrowUp } from "react-icons/im";
 import { MdArrowDownward, MdArrowUpward } from "react-icons/md";
 
 function App() {
@@ -14,6 +13,7 @@ function App() {
     animeId: number;
     correct: boolean;
     title: string;
+    thumbnail: string;
     source: string;
     startSeason: string;
     mean: number;
@@ -55,7 +55,7 @@ function App() {
 
   const getGuesses = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/guess/get-guesses")
+      const res = await axios.get("http://localhost:5000/guess/guesses")
       setAnimeGuesses(res.data)
       return res.data
     }
@@ -78,7 +78,7 @@ function App() {
 
   const getGameSession = async () => {
     try {
-      const sessionResponse = await axios.get("http://localhost:5000/session/get-session")
+      const sessionResponse = await axios.get("http://localhost:5000/session/")
 
       if (sessionResponse.data) {
         const animeDetailsResponse = await axios.get("http://localhost:5000/anime", {
@@ -148,7 +148,7 @@ function App() {
     }
 
     try {
-      const guess = await axios.post("http://localhost:5000/guess/post-guess", {animeId: animeGuessId})
+      const guess = await axios.post("http://localhost:5000/guess/", {animeId: animeGuessId})
       setGameEnded(guess.data.correct)
       setSearch("")
       setAnimeSearchTitles([])
@@ -162,12 +162,12 @@ function App() {
 
   const handleNewGame = async () => {
     try {
-      await axios.delete("http://localhost:5000/guess/delete-guesses")
+      await axios.delete("http://localhost:5000/guess/")
       setAnimeGuesses([])
       const randomAnime = await getRandomAnime()
       if (randomAnime) {
-        await axios.delete("http://localhost:5000/session/delete-session")
-        await axios.post("http://localhost:5000/session/post-session", {animeId: randomAnime.malId})
+        await axios.delete("http://localhost:5000/session/")
+        await axios.post("http://localhost:5000/session/", {animeId: randomAnime.malId})
         setRandomAnime(randomAnime)
         setGameEnded(false)
       }
@@ -277,7 +277,7 @@ function App() {
                         className="font-[Inter] text-base rounded-xl grid grid-cols-8 min-h-32 bg-neutral-700 hover:bg-neutral-600">
                         <div className={`font-bold flex items-center col-span-2 ${animeGuess.correct ? "text-emerald-400 font-bold" : "text-red-400"}`}
                         >
-                          <img src="https://cdn.myanimelist.net/images/anime/10/78745l.webp" className="h-24 px-4"></img>
+                          <img src={animeGuess.thumbnail} className="h-26 px-4"></img>
                           {animeGuess.title}
                           </div>
                         <div className="flex justify-center items-center">
