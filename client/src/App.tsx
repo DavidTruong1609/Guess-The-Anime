@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react"
 
 import axios from "axios"
 import { MdArrowDownward, MdArrowUpward } from "react-icons/md";
@@ -128,8 +128,20 @@ function App() {
       setAnimeSearchTitles([]);
     } 
     else {
-      const filtered = animeTitles.filter((anime) => anime.title.toLowerCase().includes(searchValue.toLowerCase()));
-      setAnimeSearchTitles(filtered.slice(0, 15));
+      const lowerCaseSearchValue = searchValue.toLowerCase();
+
+      const startsWithMatches = animeTitles.filter((anime) =>
+        anime.title.toLowerCase().startsWith(lowerCaseSearchValue)
+      );
+
+      const includesMatches = animeTitles.filter((anime) =>
+        anime.title.toLowerCase().includes(lowerCaseSearchValue) &&
+        !anime.title.toLowerCase().startsWith(lowerCaseSearchValue)
+      );
+
+      const filtered = [...startsWithMatches, ...includesMatches].slice(0, 15);
+
+      setAnimeSearchTitles(filtered);
     }
   };
 
