@@ -3,8 +3,8 @@ import { deleteGuesses, getGuesses, postGuess } from "../controllers/guessContro
 
 const router = Router();
 
-router.get("/get-guesses", getGuesses)
-router.post("/post-guess", postGuess)
-router.delete("/delete-guesses", deleteGuesses)
+router.get("/guesses", getGuesses)
+router.post("/", postGuess)
+router.delete("/", deleteGuesses)
 
 export default router;
