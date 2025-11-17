@@ -1,8 +1,13 @@
 import axios from "axios";
 import dotenv from "dotenv";
 import pool from "../config/db.ts";
+import { fileURLToPath } from "url";
+import path from "path";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 interface Anime {
     id: number;
