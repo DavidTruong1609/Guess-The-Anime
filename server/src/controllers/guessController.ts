@@ -4,7 +4,7 @@ import pool from "../config/db.ts";
 export const getGuesses = async (req: Request, res: Response) => {
     try {
         const allGuesses = await pool.query(
-            `SELECT guesses.anime_id, guesses.correct, anime.title, anime.source, anime.start_season, anime.mean, anime.media_type,
+            `SELECT guesses.anime_id, guesses.correct, anime.title, anime.thumbnail, anime.source, anime.start_season, anime.mean, anime.media_type,
             jsonb_agg(DISTINCT genres.name) AS genres,
             jsonb_agg(DISTINCT studios.name) AS studios
             FROM guesses
@@ -13,13 +13,14 @@ export const getGuesses = async (req: Request, res: Response) => {
             LEFT JOIN genres ON genres.id = anime_genres.genre_id
             LEFT JOIN anime_studios ON anime_studios.anime_id = anime.mal_id
             LEFT JOIN studios ON studios.id = anime_studios.studio_id
-            GROUP BY guesses.id, anime.title, anime.source, anime.start_season, anime.mean, anime.media_type
+            GROUP BY guesses.id, anime.title, anime.thumbnail, anime.source, anime.start_season, anime.mean, anime.media_type
             ORDER BY guesses.created_at DESC`
         )
         const filteredGuesses = allGuesses.rows.map((guess) => ({
             animeId: guess.anime_id,
             correct: guess.correct,
             title: guess.title,
+            thumbnail: guess.thumbnail,
             source: guess.source,
             startSeason: guess.start_season,
             mean: guess.mean,
