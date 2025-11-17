@@ -3,8 +3,8 @@ import { deleteSession, getSession, postSession } from "../controllers/sessionCo
 
 const router = Router();
 
-router.get("/get-session", getSession)
-router.post("/post-session", postSession)
-router.delete("/delete-session", deleteSession)
+router.get("/", getSession)
+router.post("/", postSession)
+router.delete("/", deleteSession)
 
 export default router;
