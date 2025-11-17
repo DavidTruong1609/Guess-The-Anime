@@ -6,7 +6,7 @@ export const getAnimeDetails = async (req: Request, res: Response) => {
         const { animeId } = req.query
         
         const allAnimeDetails = await pool.query(
-            `SELECT mal_id, title, source, start_season, mean, media_type,
+            `SELECT mal_id, title, thumbnail, source, start_season, mean, media_type,
             jsonb_agg(DISTINCT genres.name) as genres,
             jsonb_agg(DISTINCT studios.name) as studios
             FROM anime
@@ -21,6 +21,7 @@ export const getAnimeDetails = async (req: Request, res: Response) => {
         const formattedAnime = allAnimeDetails.rows.map((anime) => ({
             malId: anime.mal_id,
             title: anime.title,
+            thumbnail: anime.thumbnail,
             source: anime.source,
             startSeason: anime.start_season,
             mean: anime.mean,
