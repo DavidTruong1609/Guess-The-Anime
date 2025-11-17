@@ -217,7 +217,7 @@ function App() {
                   {animeSearchTitles.length === 0 ? (
                     <div></div>
                   ) : (
-                    <div className="bg-neutral-100 rounded-b-lg font-[Inter] text-neutral-800 text-center">
+                    <div className="bg-neutral-100 rounded-lg font-[Inter] text-neutral-800 text-center">
                       {animeSearchTitles.map((animeTitle) => (
                         <div
                           key={animeTitle.title}
@@ -322,10 +322,12 @@ function App() {
                         </div>
                         <div
                           className={`flex justify-center items-center ${animeGuess.source == randomAnime?.source ? "text-emerald-400 font-bold" : "text-red-400"}`}
-                        >{animeGuess.source.charAt(0).toUpperCase() + animeGuess.source.slice(1).replace(/_/g, " ")}</div>
+                        >{animeGuess.source.split("_").map((word, index, array) => (
+                          index === array.length - 1 ? word.charAt(0).toUpperCase() + word.slice(1) : word.charAt(0).toUpperCase() + word.slice(1) + " "
+                        ))}</div>
                         <div
                           className={`flex justify-center items-center ${animeGuess.mediaType == randomAnime?.mediaType ? "text-emerald-400 font-bold" : "text-red-400"}`}
-                        >{animeGuess.mediaType}</div>
+                        >{animeGuess.mediaType.length < 3 ? animeGuess.mediaType.toUpperCase() : animeGuess.mediaType.charAt(0).toUpperCase() + animeGuess.mediaType.slice(1)}</div>
                         <div className={`flex justify-center items-center ${animeGuess.mean == randomAnime?.mean ? "text-emerald-400 font-bold" : "text-red-400"}`}>
                           <div>{animeGuess.mean}</div>
                           <span>&nbsp;</span>
