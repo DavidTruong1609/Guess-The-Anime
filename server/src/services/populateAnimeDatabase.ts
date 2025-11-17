@@ -18,6 +18,7 @@ interface Anime {
 interface AnimeDetails {
     malId: number;
     title: string;
+    thumbnail: string;
     source: string;
     startSeason: string;
     mean: number;
@@ -63,6 +64,7 @@ const fetchAnimeDetails = async (animeId: number): Promise<{animeDetails: AnimeD
 
         const animeDetails: AnimeDetails = {
             title: response.data.title,
+            thumbnail: response.data.main_picture.large,
             source: response.data.source, 
             startSeason: `${response.data.start_season.season} ${response.data.start_season.year}`,
             mean: response.data.mean,
@@ -93,18 +95,19 @@ const insertAnime = async (animeDetails: AnimeDetails[]): Promise<void> => {
     */
     try {
         for (const anime of animeDetails) {
-            const {malId, title, source, startSeason, mean, mediaType} = anime
+            const {malId, title, thumbnail, source, startSeason, mean, mediaType} = anime
 
             await pool.query(
-                `INSERT INTO anime (mal_id, title, source, start_season, mean, media_type) 
-                VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (mal_id) 
+                `INSERT INTO anime (mal_id, title, thumbnail, source, start_season, mean, media_type) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (mal_id) 
                 DO UPDATE SET 
                 title = EXCLUDED.title, 
+                thumbnail = EXCLUDED.thumbnail, 
                 source = EXCLUDED.source, 
                 start_season = EXCLUDED.start_season, 
                 mean = EXCLUDED.mean, 
                 media_type = EXCLUDED.media_type`, 
-                [malId, title, source, startSeason, mean, mediaType]
+                [malId, title, thumbnail, source, startSeason, mean, mediaType]
             )
         }
         console.log('Anime data successfully inserted into the database');
