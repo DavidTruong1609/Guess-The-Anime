@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react"
 
 import axios from "axios"
-import { MdArrowDownward, MdArrowUpward } from "react-icons/md";
+import { MdArrowDownward, MdArrowUpward } from "react-icons/md"
+
+import Confetti from "react-confetti"
+import { useWindowSize } from 'react-use'
 
 function App() {
   interface AnimeTitle {
@@ -42,6 +45,8 @@ function App() {
   const [animeGuesses, setAnimeGuesses] = useState<AnimeGuess[]>([])
 
   const [gameEnded, setGameEnded] = useState<boolean>(false)
+
+  const { width, height } = useWindowSize()
 
   const getAnimeTitles = async () => {
     try {
@@ -192,6 +197,13 @@ function App() {
   return (
     <>
       <div className="bg-cover min-h-screen bg-neutral-800 bg-fixed">
+        {gameEnded && (
+          <Confetti
+            width={width}
+            height={height}
+            numberOfPieces={400}
+          />
+        )}
 
         <div className="flex justify-end p-6">
           <button 
@@ -199,8 +211,6 @@ function App() {
             className="rounded-4xl bg-linear-to-r from-violet-500 to-blue-500 px-6 py-3 font-bold text-neutral-100 cursor-pointer hover:text-neutral-800"
           >New Game</button>
         </div>
-
-
 
         <div className="font-[Inter] text-neutral-100 font-semibold text-5xl text-center my-6">
           <h1>Guess The Anime</h1>
@@ -251,12 +261,8 @@ function App() {
               >Guess</button>
 
             </form>
-
           </div>
-
         </div>
-
-
 
         <div className="flex justify-center my-[30px]">
           <hr className="w-[1392px] rounded-4xl p-px bg-linear-to-r from-violet-500 to-blue-500"></hr>
