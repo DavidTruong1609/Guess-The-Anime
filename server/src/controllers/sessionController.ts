@@ -1,6 +1,13 @@
 import type { Request, Response } from "express"
 import pool from "../config/db.ts"
 
+/**
+Fetches the existing game session from the database and returns the anime id in a formatted JSON response.
+
+@param {Request} req - The Express request object.
+@param {Response} res - The Express response object, used to send a JSON response with the anime id.
+
+*/
 export const getSession = async (req: Request, res: Response) => {
     try {
         const gameSession = await pool.query("SELECT anime_id FROM game_session")
@@ -19,6 +26,13 @@ export const getSession = async (req: Request, res: Response) => {
     }
 }
 
+/**
+Posts and creates a new game session into the game session database table.
+
+@param {Request} req - The Express request object.
+@param {Response} res - The Express response object.
+
+*/
 export const postSession = async (req: Request, res: Response) => {
     try {
         const { animeId } = req.body
@@ -35,6 +49,13 @@ export const postSession = async (req: Request, res: Response) => {
     }
 }
 
+/**
+Deletes and clears the game session from the game session database table.
+
+@param {Request} req - The Express request object.
+@param {Response} res - The Express response object.
+
+*/
 export const deleteSession = async (req: Request, res: Response) => {
     try {
         await pool.query("DELETE FROM game_session")
