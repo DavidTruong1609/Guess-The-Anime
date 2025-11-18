@@ -29,13 +29,13 @@ const headers = {
     "X-MAL-CLIENT-ID": process.env.MAL_CLIENT_ID,
 }
 
-const fetchAnime = async (limit: number): Promise<Anime[]> => {
-    /**
-    Fetches the top most popular anime ids and titles from the MyAnimeList API.
+/**
+Fetches the top most popular anime ids and titles from the MyAnimeList API.
 
-    @param {number} limit The number of anime to fetch from the API.
-    @returns {Promise<Anime[]>} Promise of the anime ids and titles.
-    */
+@param {number} limit The number of anime to fetch from the API.
+@returns {Promise<Anime[]>} Promise of the anime ids and titles.
+*/
+const fetchAnime = async (limit: number): Promise<Anime[]> => {
     const url = "https://api.myanimelist.net/v2/anime/ranking";
     const params = {
         "ranking_type": "bypopularity",
@@ -47,13 +47,13 @@ const fetchAnime = async (limit: number): Promise<Anime[]> => {
     return response.data.data.map((data: { node: Anime; }) => data.node); 
 }
 
-const fetchAnimeDetails = async (animeId: number): Promise<{animeDetails: AnimeDetails, animeTitles: Set<string>, animeGenres: string[], animeStudios: string[]} | undefined> => {
-    /**
-    Fetches the anime details from their anime id from the MyAnimeList API.
+/**
+Fetches the anime details from their anime id from the MyAnimeList API.
 
-    @param {number} animeId The MyAnimeList anime id to fetch.
-    @returns {Promise<{animeDetails: AnimeDetails, animeTitles: Set<string>} | undefined>} Promise of the anime details and anime titles or undefined if fails.
-    */
+@param {number} animeId The MyAnimeList anime id to fetch.
+@returns {Promise<{animeDetails: AnimeDetails, animeTitles: Set<string>} | undefined>} Promise of the anime details and anime titles or undefined if fails.
+*/
+const fetchAnimeDetails = async (animeId: number): Promise<{animeDetails: AnimeDetails, animeTitles: Set<string>, animeGenres: string[], animeStudios: string[]} | undefined> => {
     const url = "https://api.myanimelist.net/v2/anime";
     const params = {
         "fields": "id, title, alternative_titles, mean, media_type, genres, start_season, source, studios"
@@ -87,12 +87,12 @@ const fetchAnimeDetails = async (animeId: number): Promise<{animeDetails: AnimeD
     }
 }
 
-const insertAnime = async (animeDetails: AnimeDetails[]): Promise<void> => {
-    /**
-    Inserts the array of anime details into the Postgresql database.
+/**
+Inserts the array of anime details into the Postgresql database.
 
-    @param {AnimeDetails[]} animeDetails The array of anime details.
-    */
+@param {AnimeDetails[]} animeDetails The array of anime details.
+*/
+const insertAnime = async (animeDetails: AnimeDetails[]): Promise<void> => {
     try {
         for (const anime of animeDetails) {
             const {malId, title, thumbnail, source, startSeason, mean, mediaType} = anime
@@ -117,12 +117,12 @@ const insertAnime = async (animeDetails: AnimeDetails[]): Promise<void> => {
     }
 }
 
-const insertAnimeTitles = async (animeTitles: Record<number, Set<string>>): Promise<void> => {
-    /**
-    Inserts all potential titles for anime into the Postgresql database.
+/**
+Inserts all potential titles for anime into the Postgresql database.
 
-    @param {Record<number, Set<string>>} animeTitles The key value pair store of anime ids and their titles.
-    */
+@param {Record<number, Set<string>>} animeTitles The key value pair store of anime ids and their titles.
+*/
+const insertAnimeTitles = async (animeTitles: Record<number, Set<string>>): Promise<void> => {
     try {
         for (const animeId in animeTitles) {
             const titles = animeTitles[animeId]
@@ -139,12 +139,12 @@ const insertAnimeTitles = async (animeTitles: Record<number, Set<string>>): Prom
     }
 }
 
-const insertAnimeGenres = async (animeGenres: Record<number, string[]>) => {
-    /**
-    Inserts all genres for anime into the Postgresql database.
+/**
+Inserts all genres for anime into the Postgresql database.
 
-    @param {Record<number, string[]>} animeGenres The key value pair store of anime ids and their genres.
-    */
+@param {Record<number, string[]>} animeGenres The key value pair store of anime ids and their genres.
+*/
+const insertAnimeGenres = async (animeGenres: Record<number, string[]>) => {
     try {
         for (const animeId in animeGenres) {
             const genres = animeGenres[animeId]
@@ -167,12 +167,12 @@ const insertAnimeGenres = async (animeGenres: Record<number, string[]>) => {
     }
 }
 
-const insertAnimeStudios = async (animeStudios: Record<number, string[]>) => {
-    /**
-    Inserts all studios for anime into the Postgresql database.
+/**
+Inserts all studios for anime into the Postgresql database.
 
-    @param {Record<number, string[]>} animeStudios The key value pair store of anime ids and their studios.
-    */
+@param {Record<number, string[]>} animeStudios The key value pair store of anime ids and their studios.
+*/
+const insertAnimeStudios = async (animeStudios: Record<number, string[]>) => {
     try {
         for (const animeId in animeStudios) {
             const studios = animeStudios[animeId]
@@ -195,11 +195,11 @@ const insertAnimeStudios = async (animeStudios: Record<number, string[]>) => {
     }
 }
 
-const populateDatabase = async () => {
-    /**
-    Populates the database with anime data.
+/**
+Populates the database with anime data.
 
-    */
+*/
+const populateDatabase = async () => {
     const animeLimit = 100 // Change this limit number variable to a max of 500 to add that amount of animes to your database.
 
     const animeData = await fetchAnime(animeLimit); 
