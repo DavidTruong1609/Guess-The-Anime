@@ -210,7 +210,7 @@ function App() {
         <div className="flex justify-end p-6">
           <button 
             onClick={handleNewGame}
-            className="rounded-4xl bg-linear-to-r from-violet-500 to-blue-500 px-6 py-3 font-bold text-neutral-100 cursor-pointer hover:text-neutral-800"
+            className="rounded-4xl bg-linear-to-r from-violet-500 to-blue-500 px-6 py-3 font-bold text-neutral-100 cursor-pointer hover:text-neutral-800 focus:outline-2 focus:outline-neutral-100 focus:outline-offset-2"
           >New Game</button>
         </div>
 
@@ -232,9 +232,9 @@ function App() {
                     type="text"
                     value={search}
                     onChange={handleSearchChange}
-                    placeholder="Guess anime..."
+                    placeholder="Type an anime..."
                     disabled={gameEnded}
-                    className="bg-neutral-100 px-6 py-3 w-full rounded-4xl font-[Inter] focus:outline-none"
+                    className="bg-neutral-100 px-6 py-3 w-full rounded-4xl font-[Inter] focus:outline-2 focus:outline-neutral-100 focus:outline-offset-4"
                   />
                 </div>
                 <div className="w-full absolute ">
@@ -259,7 +259,7 @@ function App() {
               <button
                 type="submit"
                 disabled={gameEnded}
-                className="bg-linear-to-r from-violet-500 to-blue-500 px-6 py-3 rounded-4xl text-neutral-100 font-bold cursor-pointer hover:text-neutral-800"
+                className="bg-linear-to-r from-violet-500 to-blue-500 px-6 py-3 rounded-4xl text-neutral-100 font-bold cursor-pointer hover:text-neutral-800 focus:outline-2 focus:outline-neutral-100 focus:outline-offset-2"
               >Guess</button>
 
             </form>
@@ -294,7 +294,7 @@ function App() {
                       className="mt-3 p-0.5 bg-linear-to-r from-violet-500 to-blue-500 rounded-xl">
                       <div
                         key={animeGuess.animeId}
-                        className="font-[Inter] text-base rounded-xl grid grid-cols-8 min-h-32 bg-neutral-700 hover:bg-neutral-600">
+                        className="font-[Inter] text-base rounded-xl grid grid-cols-8 min-h-32 bg-neutral-700">
                         <div className={`font-bold flex items-center col-span-2 ${animeGuess.correct ? "text-emerald-400 font-bold" : "text-red-400"}`}
                         >
                           <img src={animeGuess.thumbnail} className="h-26 px-4"></img>
