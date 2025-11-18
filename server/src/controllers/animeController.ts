@@ -1,6 +1,14 @@
 import type { Request, Response } from "express"
 import pool from "../config/db.ts"
 
+/**
+Fetches specific anime details using a query parameter "animeId" and formats the data, 
+returning it as a JSON response.
+
+@param {Request} req - The Express request object, containing query parameters (specifically `animeId`).
+@param {Response} res - The Express response object, used to send a JSON response with anime details.
+
+*/
 export const getAnimeDetails = async (req: Request, res: Response) => {
     try {
         const { animeId } = req.query
@@ -40,6 +48,13 @@ export const getAnimeDetails = async (req: Request, res: Response) => {
     }
 }
 
+/**
+Fetches all titles for all the anime in the database and returns it as a formatted JSON response.
+
+@param {Request} req - The Express request object
+@param {Response} res - The Express response object, used to send a JSON response with all anime titles.
+
+*/
 export const getAnimeTitles = async (req: Request, res: Response) => {
     try {
         const allAnimeTitles = await pool.query("SELECT anime_id, title FROM anime_titles")
@@ -59,6 +74,13 @@ export const getAnimeTitles = async (req: Request, res: Response) => {
     }
 }
 
+/**
+Fetches a random anime and its details from the database and returns it as a formatted JSON response.
+
+@param {Request} req - The Express request object
+@param {Response} res - The Express response object, used to send a JSON response with the random anime and its details.
+
+*/
 export const getRandomAnime = async (req: Request, res: Response) => {
     try {
         const randomAnime = await pool.query(
