@@ -33,6 +33,7 @@ const headers = {
 Fetches the top most popular anime ids and titles from the MyAnimeList API.
 
 @param {number} limit The number of anime to fetch from the API.
+
 @returns {Promise<Anime[]>} Promise of the anime ids and titles.
 */
 const fetchAnime = async (limit: number): Promise<Anime[]> => {
@@ -51,6 +52,7 @@ const fetchAnime = async (limit: number): Promise<Anime[]> => {
 Fetches the anime details from their anime id from the MyAnimeList API.
 
 @param {number} animeId The MyAnimeList anime id to fetch.
+
 @returns {Promise<{animeDetails: AnimeDetails, animeTitles: Set<string>} | undefined>} Promise of the anime details and anime titles or undefined if fails.
 */
 const fetchAnimeDetails = async (animeId: number): Promise<{animeDetails: AnimeDetails, animeTitles: Set<string>, animeGenres: string[], animeStudios: string[]} | undefined> => {
