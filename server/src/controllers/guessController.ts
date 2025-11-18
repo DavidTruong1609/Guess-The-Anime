@@ -1,6 +1,13 @@
 import type { Request, Response } from "express";
 import pool from "../config/db.ts";
 
+/**
+Fetches all previous and current guesses in the database and returns it as a formatted JSON response.
+
+@param {Request} req - The Express request object
+@param {Response} res - The Express response object, used to send a JSON response with all the guesses data.
+
+*/
 export const getGuesses = async (req: Request, res: Response) => {
     try {
         const allGuesses = await pool.query(
@@ -38,6 +45,14 @@ export const getGuesses = async (req: Request, res: Response) => {
     }
 }
 
+/**
+Post and add a guess with the animeId request body to the database. Function also checks the game session
+anime to ensure whether the guess is correct or not before inserting the guess into the guesses database.
+
+@param {Request} req - The Express request object, containing query parameters (specifically `animeId`).
+@param {Response} res - The Express response object, used to send a JSON response with the guess outcome (whether correct or not).
+
+*/
 export const postGuess = async (req: Request, res: Response) => {
     try {
         const { animeId } = req.body
@@ -67,6 +82,13 @@ export const postGuess = async (req: Request, res: Response) => {
     }
 }
 
+/**
+Delete and clear all guesses from the guesses database table.
+
+@param {Request} req - The Express request object.
+@param {Response} res - The Express response object, used to send a JSON response noting if the delete was successful or not.
+
+*/
 export const deleteGuesses = async (req: Request, res: Response) => {
     try {
         await pool.query("DELETE FROM guesses")
