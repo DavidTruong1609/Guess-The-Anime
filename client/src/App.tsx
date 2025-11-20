@@ -6,6 +6,8 @@ import { MdArrowDownward, MdArrowUpward } from "react-icons/md"
 import Confetti from "react-confetti"
 import { useWindowSize } from 'react-use'
 
+import { API_URL } from "./api"
+
 function App() {
   interface AnimeTitle {
     animeId: number;
@@ -50,7 +52,7 @@ function App() {
 
   const getAnimeTitles = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/anime-titles")
+      const res = await axios.get(`${API_URL}/anime-titles`)
       setAnimeTitles(res.data)
     }
     catch (error) {
@@ -60,7 +62,7 @@ function App() {
 
   const getGuesses = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/guess/guesses")
+      const res = await axios.get(`${API_URL}/guess/guesses`)
       setAnimeGuesses(res.data)
       return res.data
     }
@@ -71,7 +73,7 @@ function App() {
 
   const getRandomAnime = async (): Promise<AnimeDetails | undefined> => {
     try {
-      const res = await axios.get("http://localhost:5000/random-anime")
+      const res = await axios.get(`${API_URL}/random-anime`)
       setRandomAnime(res.data)
       console.log(`The answer is ${res.data.malId}: ${res.data.title}.`)
       return res.data
@@ -83,10 +85,10 @@ function App() {
 
   const getGameSession = async () => {
     try {
-      const sessionResponse = await axios.get("http://localhost:5000/session/")
+      const sessionResponse = await axios.get(`${API_URL}/session/`)
 
       if (sessionResponse.data) {
-        const animeDetailsResponse = await axios.get("http://localhost:5000/anime", {
+        const animeDetailsResponse = await axios.get(`${API_URL}/anime`, {
           params: {
             animeId: sessionResponse.data.animeId,
           }
@@ -165,7 +167,7 @@ function App() {
     }
 
     try {
-      const guess = await axios.post("http://localhost:5000/guess/", {animeId: animeGuessId})
+      const guess = await axios.post(`${API_URL}/guess/`, {animeId: animeGuessId})
       setGameEnded(guess.data.correct)
       setSearch("")
       setAnimeSearchTitles([])
@@ -179,12 +181,12 @@ function App() {
 
   const handleNewGame = async () => {
     try {
-      await axios.delete("http://localhost:5000/guess/")
+      await axios.delete(`${API_URL}/guess/`)
       setAnimeGuesses([])
       const randomAnime = await getRandomAnime()
       if (randomAnime) {
-        await axios.delete("http://localhost:5000/session/")
-        await axios.post("http://localhost:5000/session/", {animeId: randomAnime.malId})
+        await axios.delete(`${API_URL}/session/`)
+        await axios.post(`${API_URL}/session/`, {animeId: randomAnime.malId})
         setRandomAnime(randomAnime)
         setGameEnded(false)
       }
@@ -220,7 +222,6 @@ function App() {
 
         <div className="flex justify-center items-center pb-[30px]">
 
-          <div className="w-1/2">
 
             <form 
               onSubmit={onSubmit}
@@ -263,7 +264,6 @@ function App() {
               >Guess</button>
 
             </form>
-          </div>
         </div>
 
         <div className="flex justify-center my-[30px] mx-2">
@@ -275,100 +275,96 @@ function App() {
             <div></div>
           ) : (
             <div className="overflow-x-auto mx-2 pb-3">
-            <div className="w-[1392px]">
-
-              <div className="font-[Inter] grid grid-cols-8 gap-6 pb-3 text-neutral-800">
-                <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl col-span-2">Title</div>
-                <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Premiered</div>
-                <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Genre/s</div>
-                <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Studio/s</div>
-                <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Source</div>
-                <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Media Type</div>
-                <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Score</div>
-              </div>
-
-              <div className="">
-                {animeGuesses.map((animeGuess) => {
-                  return (
-                    <div
-                      key={animeGuess.animeId}
-                      className="mt-3 p-0.5 bg-linear-to-r from-violet-500 to-blue-500 rounded-xl">
+              <div className="w-[1392px]">
+                <div className="font-[Inter] grid grid-cols-8 gap-6 pb-3 text-neutral-800">
+                  <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl col-span-2">Title</div>
+                  <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Premiered</div>
+                  <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Genre/s</div>
+                  <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Studio/s</div>
+                  <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Source</div>
+                  <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Media Type</div>
+                  <div className="text-base py-3 px-8 bg-neutral-100 text-center rounded-4xl">Score</div>
+                </div>
+                <div className="">
+                  {animeGuesses.map((animeGuess) => {
+                    return (
                       <div
                         key={animeGuess.animeId}
-                        className="font-[Inter] text-base rounded-xl grid grid-cols-8 min-h-32 bg-neutral-700">
-                        <div className={`font-bold flex items-center col-span-2 ${animeGuess.correct ? "text-emerald-400 font-bold" : "text-red-400"}`}
-                        >
-                          <img src={animeGuess.thumbnail} className="h-26 px-4"></img>
-                          {animeGuess.title}
-                          </div>
-                        <div className="flex justify-center items-center">
+                        className="mt-3 p-0.5 bg-linear-to-r from-violet-500 to-blue-500 rounded-xl">
+                        <div
+                          key={animeGuess.animeId}
+                          className="font-[Inter] text-base rounded-xl grid grid-cols-8 min-h-32 bg-neutral-700">
+                          <div className={`font-bold flex items-center col-span-2 ${animeGuess.correct ? "text-emerald-400 font-bold" : "text-red-400"}`}
+                          >
+                            <img src={animeGuess.thumbnail} className="h-26 px-4"></img>
+                            {animeGuess.title}
+                            </div>
                           <div className="flex justify-center items-center">
-                            <div
-                              className={randomAnime?.startSeason.includes(animeGuess.startSeason.split(" ")[0]) ? "text-emerald-400 font-bold" : "text-red-400"}
-                            >{animeGuess.startSeason.split(" ")[0].charAt(0).toUpperCase() + animeGuess.startSeason.split(" ")[0].slice(1)}</div>
-                            <span>&nbsp;</span>
-                            <div
-                              className={randomAnime?.startSeason.includes(animeGuess.startSeason.split(" ")[1]) ? "text-emerald-400 font-bold" : "text-red-400"}
-                            >{animeGuess.startSeason.split(" ")[1]}</div>
-                          </div>
-                          <span>&nbsp;</span>
-                          <div className="text-2xl text-red-400">
-                            {randomAnime?.startSeason !== undefined && (
-                              parseInt(animeGuess.startSeason.split(" ")[1]) > parseInt(randomAnime.startSeason.split(" ")[1]) ? (
-                                <MdArrowDownward/>
-                              ) : parseInt(animeGuess.startSeason.split(" ")[1]) < parseInt(randomAnime.startSeason.split(" ")[1]) ? (
-                                <MdArrowUpward/>
-                              ) : null)}
-                          </div>
-                        </div>
-                        <div className="flex justify-center items-center text-center py-3">
-                          <div>
-                            {animeGuess.genres.map((genre) => (
+                            <div className="flex justify-center items-center">
                               <div
-                                key={genre}
-                                className={randomAnime?.genres.includes(genre) ? "text-emerald-400 font-bold" : "text-red-400"}
-                              >{genre}</div>
-                            ))}
+                                className={randomAnime?.startSeason.includes(animeGuess.startSeason.split(" ")[0]) ? "text-emerald-400 font-bold" : "text-red-400"}
+                              >{animeGuess.startSeason.split(" ")[0].charAt(0).toUpperCase() + animeGuess.startSeason.split(" ")[0].slice(1)}</div>
+                              <span>&nbsp;</span>
+                              <div
+                                className={randomAnime?.startSeason.includes(animeGuess.startSeason.split(" ")[1]) ? "text-emerald-400 font-bold" : "text-red-400"}
+                              >{animeGuess.startSeason.split(" ")[1]}</div>
+                            </div>
+                            <span>&nbsp;</span>
+                            <div className="text-2xl text-red-400">
+                              {randomAnime?.startSeason !== undefined && (
+                                parseInt(animeGuess.startSeason.split(" ")[1]) > parseInt(randomAnime.startSeason.split(" ")[1]) ? (
+                                  <MdArrowDownward/>
+                                ) : parseInt(animeGuess.startSeason.split(" ")[1]) < parseInt(randomAnime.startSeason.split(" ")[1]) ? (
+                                  <MdArrowUpward/>
+                                ) : null)}
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex justify-center items-center text-center">
+                          <div className="flex justify-center items-center text-center py-3">
                             <div>
-                              {animeGuess.studios.map((studio) => (
+                              {animeGuess.genres.map((genre) => (
                                 <div
-                                  key={studio}
-                                  className={randomAnime?.studios.includes(studio) ? "text-emerald-400 font-bold" : "text-red-400"}
-                                >{studio}</div>
+                                  key={genre}
+                                  className={randomAnime?.genres.includes(genre) ? "text-emerald-400 font-bold" : "text-red-400"}
+                                >{genre}</div>
                               ))}
                             </div>
-                        </div>
-                        <div
-                          className={`flex justify-center items-center ${animeGuess.source == randomAnime?.source ? "text-emerald-400 font-bold" : "text-red-400"}`}
-                        >{animeGuess.source.split("_").map((word, index, array) => (
-                          index === array.length - 1 ? word.charAt(0).toUpperCase() + word.slice(1) : word.charAt(0).toUpperCase() + word.slice(1) + " "
-                        ))}</div>
-                        <div
-                          className={`flex justify-center items-center ${animeGuess.mediaType == randomAnime?.mediaType ? "text-emerald-400 font-bold" : "text-red-400"}`}
-                        >{animeGuess.mediaType.length < 3 ? animeGuess.mediaType.toUpperCase() : animeGuess.mediaType.charAt(0).toUpperCase() + animeGuess.mediaType.slice(1)}</div>
-                        <div className={`flex justify-center items-center ${animeGuess.mean == randomAnime?.mean ? "text-emerald-400 font-bold" : "text-red-400"}`}>
-                          <div>{animeGuess.mean}</div>
-                          <span>&nbsp;</span>
-                          <div className="text-2xl">
-                            {randomAnime?.mean !== undefined && (
-                              animeGuess.mean > randomAnime.mean ? (
-                                <MdArrowDownward/>
-                              ) : animeGuess.mean < randomAnime.mean ? (
-                                <MdArrowUpward/>
-                              ) : null)}
+                          </div>
+                          <div className="flex justify-center items-center text-center">
+                              <div>
+                                {animeGuess.studios.map((studio) => (
+                                  <div
+                                    key={studio}
+                                    className={randomAnime?.studios.includes(studio) ? "text-emerald-400 font-bold" : "text-red-400"}
+                                  >{studio}</div>
+                                ))}
+                              </div>
+                          </div>
+                          <div
+                            className={`flex justify-center items-center ${animeGuess.source == randomAnime?.source ? "text-emerald-400 font-bold" : "text-red-400"}`}
+                          >{animeGuess.source.split("_").map((word, index, array) => (
+                            index === array.length - 1 ? word.charAt(0).toUpperCase() + word.slice(1) : word.charAt(0).toUpperCase() + word.slice(1) + " "
+                          ))}</div>
+                          <div
+                            className={`flex justify-center items-center ${animeGuess.mediaType == randomAnime?.mediaType ? "text-emerald-400 font-bold" : "text-red-400"}`}
+                          >{animeGuess.mediaType.length < 3 ? animeGuess.mediaType.toUpperCase() : animeGuess.mediaType.charAt(0).toUpperCase() + animeGuess.mediaType.slice(1)}</div>
+                          <div className={`flex justify-center items-center ${animeGuess.mean == randomAnime?.mean ? "text-emerald-400 font-bold" : "text-red-400"}`}>
+                            <div>{animeGuess.mean}</div>
+                            <span>&nbsp;</span>
+                            <div className="text-2xl">
+                              {randomAnime?.mean !== undefined && (
+                                animeGuess.mean > randomAnime.mean ? (
+                                  <MdArrowDownward/>
+                                ) : animeGuess.mean < randomAnime.mean ? (
+                                  <MdArrowUpward/>
+                                ) : null)}
+                            </div>
                           </div>
                         </div>
                       </div>
-
-                    </div>
+                    )}
                   )}
-                )}
                 </div>
               </div>
-
             </div>
           )}
           
