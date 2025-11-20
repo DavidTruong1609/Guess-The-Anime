@@ -144,7 +144,7 @@ function App() {
         !anime.title.toLowerCase().startsWith(lowerCaseSearchValue)
       );
 
-      const filtered = [...startsWithMatches, ...includesMatches].slice(0, 15);
+      const filtered = [...startsWithMatches, ...includesMatches].slice(0, 10);
 
       setAnimeSearchTitles(filtered);
     }
@@ -224,7 +224,7 @@ function App() {
 
             <form 
               onSubmit={onSubmit}
-              className="flex justify-center">
+              className="flex justify-center md:w-1/2">
 
               <div className="relative w-1/2 mx-6">
                 <div className="p-0.5 bg-linear-to-r from-violet-500 to-blue-500 rounded-4xl">
@@ -266,7 +266,7 @@ function App() {
           </div>
         </div>
 
-        <div className="flex justify-center my-[30px]">
+        <div className="flex justify-center my-[30px] mx-2">
           <hr className="w-[1392px] rounded-4xl p-px bg-linear-to-r from-violet-500 to-blue-500"></hr>
         </div>
 
@@ -274,6 +274,7 @@ function App() {
           {animeGuesses.length === 0 ? (
             <div></div>
           ) : (
+            <div className="overflow-x-auto mx-2 pb-3">
             <div className="w-[1392px]">
 
               <div className="font-[Inter] grid grid-cols-8 gap-6 pb-3 text-neutral-800">
@@ -365,6 +366,7 @@ function App() {
                     </div>
                   )}
                 )}
+                </div>
               </div>
 
             </div>
